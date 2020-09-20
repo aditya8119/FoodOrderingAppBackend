@@ -4,10 +4,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
 
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import org.springframework.stereotype.Repository;
 
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthTokenEntity;
+
+import java.time.ZonedDateTime;
+import java.util.List;
 
 @Repository
 public class CustomerDao {
@@ -35,4 +39,43 @@ public class CustomerDao {
     public void updateCustomer(final CustomerEntity updatedCustomerEntity) {
         entityManager.merge(updatedCustomerEntity);
     }
+
+    //Get Customer By AccessToken
+    public CustomerAuthTokenEntity getCustomerAuthToken(final String accessToken) {
+        try {
+            return entityManager.createNamedQuery("customerAuthTokenByAccessToken", CustomerAuthTokenEntity.class).setParameter("accessToken", accessToken).getSingleResult();
+        }
+        catch (NoResultException nre) {
+            return null;
+        }
+
+    }
+
+    //To update user Log Out Time
+    public void setCustomerLogout(final CustomerAuthTokenEntity customerAuthTokenEntity){
+        entityManager.merge(customerAuthTokenEntity);
+        return ;
+    }
+
+    public boolean userSignOutStatus(String authorizationToken) {
+        CustomerAuthTokenEntity customerAuthTokenEntity = getCustomerAuthToken(authorizationToken);
+        ZonedDateTime loggedOutStatus = customerAuthTokenEntity.getLogoutAt();
+        ZonedDateTime loggedInStatus = customerAuthTokenEntity.getLoginAt();
+        if (loggedOutStatus != null && loggedOutStatus.isAfter(loggedInStatus)) {
+            return true;
+        } else
+            return false;
+    }
+
+    //To get All saved addresses
+    public List<AddressEntity> getAllSavedAddress(){
+        try {
+            return entityManager.createNamedQuery("allSavedAddress", AddressEntity.class).getResultList();
+
+        }catch (NoResultException nre){
+            return null;
+        }
+    }
+
+
 }
