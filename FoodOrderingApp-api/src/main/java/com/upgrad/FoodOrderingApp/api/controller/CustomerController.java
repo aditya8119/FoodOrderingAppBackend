@@ -1,7 +1,12 @@
 package com.upgrad.FoodOrderingApp.api.controller;
 
 import java.util.Base64;
+import java.util.List;
 
+import com.upgrad.FoodOrderingApp.api.model.AddressList;
+import com.upgrad.FoodOrderingApp.api.model.AddressListResponse;
+import com.upgrad.FoodOrderingApp.api.model.LogoutResponse;
+import com.upgrad.FoodOrderingApp.service.entity.AddressEntity;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -66,4 +71,32 @@ public class CustomerController {
         return new ResponseEntity<LoginResponse>(loginResponse, headers, HttpStatus.OK);
 		
 	}
+
+    @RequestMapping(method = RequestMethod.POST,
+            path = "/customer/logout",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<LogoutResponse> signout(
+            @RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+        String customerUUID = customerBusinessService.signOut(authorization);
+
+        LogoutResponse signoutResponse = new LogoutResponse().id(customerUUID)
+                .message("LOGGED OUT SUCCESSFULLY");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("customer-uuid", customerUUID);
+
+        return new ResponseEntity<LogoutResponse>(signoutResponse, headers, HttpStatus.OK);
+    }
+
+    @RequestMapping(method = RequestMethod.GET,
+            path = "/address/customer",
+            produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<AddressListResponse> getAllSavedAddress(
+            @RequestHeader("authorization") final String authorization) throws AuthenticationFailedException {
+        AddressList addressEntityList = (AddressList) customerBusinessService.getAllSavedAddress(authorization);
+
+        AddressListResponse addressListResponse = new AddressListResponse().addAddressesItem(addressEntityList);
+
+        return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
+    }
 }
