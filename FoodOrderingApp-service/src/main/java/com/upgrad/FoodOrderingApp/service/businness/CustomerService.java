@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-public class CustomerBusinessService {
+public class CustomerService {
 	
 	@Autowired
     private CustomerDao customerDao;
@@ -103,6 +103,29 @@ public class CustomerBusinessService {
 
         }
         return  customerDao.getAllSavedAddress();
+    }
+
+
+    @Transactional
+    public void validateAccessToken(final String authorizationToken) throws AuthorizationFailedException{
+
+        //get the customerAuthToken details from customerDao
+        CustomerAuthTokenEntity customerAuthTokenEntity = customerDao.getCustomerAuthToken(authorizationToken);
+
+        // Gets the current time
+        final ZonedDateTime now = ZonedDateTime.now();
+
+        // Throw AuthorizationFailedException if the customer is not authorized
+        if (customerAuthTokenEntity == null) {
+            throw new AuthorizationFailedException("ATHR-001", "Customer is not Logged in.");
+            // Throw AuthorizationFailedException if the customer is logged out
+        } else if (customerAuthTokenEntity.getLogoutAt() != null) {
+            throw new AuthorizationFailedException("ATHR-002", "Customer is logged out. Log in again to access this endpoint.");
+            // Throw AuthorizationFailedException if the customer session is expired
+        } else if (now.isAfter(customerAuthTokenEntity.getExpiresAt()) ) {
+            throw new AuthorizationFailedException("ATHR-003", "Your session is expired. Log in again to access this endpoint.");
+        }
+
     }
 
 
