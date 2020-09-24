@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.upgrad.FoodOrderingApp.api.model.LoginResponse;
-import com.upgrad.FoodOrderingApp.service.businness.CustomerBusinessService;
+import com.upgrad.FoodOrderingApp.service.businness.CustomerService;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerAuthTokenEntity;
 import com.upgrad.FoodOrderingApp.service.entity.CustomerEntity;
 import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedException;
@@ -28,7 +28,7 @@ import com.upgrad.FoodOrderingApp.service.exception.AuthenticationFailedExceptio
 public class CustomerController {
 	
 	@Autowired
-    private CustomerBusinessService customerBusinessService;
+    private CustomerService customerBusinessService;
 
 	/**
 	 * This end point is used for customer authentication. 
@@ -99,4 +99,8 @@ public class CustomerController {
 
         return new ResponseEntity<AddressListResponse>(addressListResponse, HttpStatus.OK);
     }
+
+
+
+
 }
